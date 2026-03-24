@@ -16,7 +16,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '14'
+        node-version: '16'  # Update to Node.js 16 or higher
 
     - name: Install dependencies
       run: |
@@ -39,6 +39,10 @@ jobs:
         tar -xvzf postman-cli.tar.gz
         sudo mv Postman /usr/local/bin
         sudo chmod +x /usr/local/bin/Postman  # Ensure it's executable
+
+    - name: Verify Postman installation
+      run: |
+        postman --version  # Verify Postman CLI installation
 
     - name: Run Postman collection
       run: |
