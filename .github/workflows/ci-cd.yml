@@ -1,0 +1,60 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main  
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest  
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'
+
+    - name: Install dependencies
+      run: |
+        npm install
+        npm install cypress
+
+    - name: Run Cypress tests
+      run: npx cypress run
+
+  postman-api:
+    runs-on: ubuntu-latest  
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Postman CLI
+      run: |
+        curl -L https://dl.pstmn.io/download/latest/linux -o postman-cli.tar.gz
+        tar -xvzf postman-cli.tar.gz
+        sudo mv Postman /usr/local/bin
+
+    - name: Run Postman collection
+      run: |
+        postman run api-tests/your_postman_collection.json
+
+  k6-performance:
+    runs-on: ubuntu-latest 
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install k6
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y k6
+
+    - name: Run k6 performance test
+      run: |
+        k6 run performance-tests/create_order_test.js
