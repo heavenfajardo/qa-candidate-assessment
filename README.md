@@ -13,5 +13,5 @@ Before running the tests, make sure you have the following installed:
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/your-username/qa-candidate-assessment.git
+   git clone https://github.com/heavenfajardo/qa-candidate-assessment.git
    cd qa-candidate-assessment
