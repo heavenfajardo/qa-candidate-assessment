@@ -6,64 +6,55 @@ on:
       - main  
 
 jobs:
-  ui-and-api-tests:
-    runs-on: ubuntu-latest
+  full-test-pipeline:
+    runs-on: windows-latest
+
     steps:
+      # -------------------- Checkout repo --------------------
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # -------------------- Cypress --------------------
-      - name: Set up Node.js
+      # -------------------- Setup Node.js --------------------
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '24.11.1'
 
+      # -------------------- Cypress UI Tests --------------------
       - name: Install Cypress dependencies
         working-directory: ./ui-tests
         run: |
           npm install
           npm install cypress
 
-      - name: Install Cypress binary
-        working-directory: ./ui-tests
-        run: npx cypress install
-
-      - name: Give Cypress execute permission
-        working-directory: ./ui-tests
-        run: chmod +x ./node_modules/.bin/cypress
-
       - name: Run Cypress tests
         working-directory: ./ui-tests
         run: npx cypress run
 
-      # -------------------- Postman / Newman --------------------
-      - name: Install Newman
+      # -------------------- Postman API Tests --------------------
+      - name: Install Newman (Postman CLI)
         run: npm install -g newman
 
       - name: Start local API server
-        run: node ./server.js &
+        run: |
+          node ./server.js
+        shell: powershell
+        background: true  # Keep server running in background
 
       - name: Wait for server to start
-        run: sleep 5
+        run: Start-Sleep -Seconds 5
+        shell: powershell
 
       - name: Run Postman collection
         run: newman run ./api-tests/postman-collections.json
 
-  k6-performance:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      # -------------------- k6 Performance Tests --------------------
       - name: Install k6
+        shell: powershell
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -q -O - https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
-          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-          sudo apt-get update
-          sudo apt-get install -y k6
+          choco install k6 -y
           k6 version
 
       - name: Run k6 performance test
         run: k6 run ./performance-tests/create_order_test.js
+        shell: powershell
