@@ -44,14 +44,30 @@ jobs:
         run: npm install -g newman
 
       - name: Start local API server
-        run: Start-Process -NoNewWindow -FilePath "node" -ArgumentList "./server.js"
         shell: powershell
-
-      - name: Wait for server to start
-        run: Start-Sleep -Seconds 5
-        shell: powershell
+        run: |
+          $server = Start-Process node -ArgumentList "./api-tests/server.js" -PassThru
+          # Wait until port 3000 is open
+          $timeout = 60
+          $elapsed = 0
+          while ($true) {
+            try {
+              $tcp = New-Object System.Net.Sockets.TcpClient
+              $tcp.Connect('127.0.0.1', 3000)
+              $tcp.Close()
+              break
+            } catch {
+              Start-Sleep -Seconds 1
+              $elapsed++
+              if ($elapsed -ge $timeout) {
+                Write-Host "Server did not start within $timeout seconds."
+                Exit 1
+              }
+            }
+          }
 
       - name: Run Postman collection
+        shell: powershell
         run: newman run ./api-tests/postman-collections.json
 
       - name: Install k6
@@ -61,5 +77,5 @@ jobs:
           k6 version
 
       - name: Run k6 performance test
-        run: k6 run ./performance-tests/create_order_test.js
         shell: powershell
+        run: k6 run ./performance-tests/create_order_test.js
