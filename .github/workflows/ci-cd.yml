@@ -6,12 +6,13 @@ on:
       - main  
 
 jobs:
-  cypress:
+  ui-and-api-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
+    
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -23,18 +24,23 @@ jobs:
           npm install
           npm install cypress
 
+      - name: Give Cypress execute permission
+        working-directory: ./ui-tests
+        run: chmod +x ./node_modules/.bin/cypress
+
       - name: Run Cypress tests
         working-directory: ./ui-tests
         run: npx cypress run
 
-  postman-api:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Install Newman (Postman CLI)
+    
+      - name: Install Newman
         run: npm install -g newman
+
+      - name: Start local API server
+        run: node ./server.js &
+
+      - name: Wait for server to start
+        run: sleep 5
 
       - name: Run Postman collection
         run: newman run ./api-tests/postman-collections.json
