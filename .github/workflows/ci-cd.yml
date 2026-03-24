@@ -18,11 +18,23 @@ jobs:
         with:
           node-version: '24.11.1'
 
+      - name: Cache Node modules and Cypress binary
+        uses: actions/cache@v3
+        with:
+          path: |
+            ./ui-tests/node_modules
+            C:/Users/runneradmin/AppData/Local/Cypress/Cache
+          key: cypress-${{ runner.os }}-${{ hashFiles('**/ui-tests/package-lock.json') }}
+
       - name: Install Cypress dependencies
         working-directory: ./ui-tests
         run: |
           npm install
           npm install cypress
+
+      - name: Install Cypress binary
+        working-directory: ./ui-tests
+        run: npx cypress install
 
       - name: Run Cypress tests
         working-directory: ./ui-tests
