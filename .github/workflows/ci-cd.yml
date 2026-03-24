@@ -14,16 +14,18 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v3
       with:
-        node-version: '16'  # Update to Node.js 16 or higher
+        node-version: '24.11.1'
 
     - name: Install dependencies
+      working-directory: ./qa-candidate-assessment  # update if your Node.js project is in a subfolder
       run: |
         npm install
         npm install cypress
 
     - name: Run Cypress tests
+      working-directory: ./qa-candidate-assessment
       run: npx cypress run
 
   postman-api:
@@ -35,18 +37,16 @@ jobs:
 
     - name: Install Postman CLI
       run: |
-        curl -L https://dl.pstmn.io/download/latest/linux -o postman-cli.tar.gz
+        curl -L https://dl.pstmn.io/download/latest/linux64 -o postman-cli.tar.gz
         tar -xvzf postman-cli.tar.gz
-        sudo mv Postman /usr/local/bin
-        sudo chmod +x /usr/local/bin/Postman  # Ensure it's executable
+        sudo mv Postman /usr/local/bin/pm
+        sudo chmod +x /usr/local/bin/pm
 
-    - name: Verify Postman installation
-      run: |
-        postman --version  # Verify Postman CLI installation
+    - name: Verify Postman CLI installation
+      run: pm version
 
     - name: Run Postman collection
-      run: |
-        postman run api-tests/your_postman_collection.json
+      run: pm run api-tests/your_postman_collection.json
 
   k6-performance:
     runs-on: ubuntu-latest 
@@ -58,9 +58,12 @@ jobs:
     - name: Install k6
       run: |
         sudo apt-get update
+        sudo apt-get install -y wget gnupg
+        wget -q -O - https://dl.k6.io/key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/k6-archive-keyring.gpg
+        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+        sudo apt-get update
         sudo apt-get install -y k6
-        k6 version  # Verify k6 installation
+        k6 version
 
     - name: Run k6 performance test
-      run: |
-        k6 run performance-tests/create_order_test.js
+      run: k6 run performance-tests/create_order_test.js
