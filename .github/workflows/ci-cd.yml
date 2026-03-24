@@ -32,10 +32,9 @@ jobs:
         run: npm install -g newman
 
       - name: Start local API server
-        run: |
-          node ./server.js
+        run: node ./server.js
         shell: powershell
-        background: true  
+        background: true
 
       - name: Wait for server to start
         run: Start-Sleep -Seconds 5
