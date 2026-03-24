@@ -38,6 +38,7 @@ jobs:
         curl -L https://dl.pstmn.io/download/latest/linux -o postman-cli.tar.gz
         tar -xvzf postman-cli.tar.gz
         sudo mv Postman /usr/local/bin
+        sudo chmod +x /usr/local/bin/Postman  # Ensure it's executable
 
     - name: Run Postman collection
       run: |
@@ -54,6 +55,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y k6
+        k6 version  # Verify k6 installation
 
     - name: Run k6 performance test
       run: |
