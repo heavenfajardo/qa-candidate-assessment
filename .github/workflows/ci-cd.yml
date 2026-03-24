@@ -12,7 +12,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-    
+      # -------------------- Cypress --------------------
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
@@ -24,6 +24,10 @@ jobs:
           npm install
           npm install cypress
 
+      - name: Install Cypress binary
+        working-directory: ./ui-tests
+        run: npx cypress install
+
       - name: Give Cypress execute permission
         working-directory: ./ui-tests
         run: chmod +x ./node_modules/.bin/cypress
@@ -32,7 +36,7 @@ jobs:
         working-directory: ./ui-tests
         run: npx cypress run
 
-    
+      # -------------------- Postman / Newman --------------------
       - name: Install Newman
         run: npm install -g newman
 
