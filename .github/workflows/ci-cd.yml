@@ -10,17 +10,14 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      # -------------------- Checkout repo --------------------
       - name: Checkout code
         uses: actions/checkout@v2
 
-      # -------------------- Setup Node.js --------------------
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '24.11.1'
 
-      # -------------------- Cypress UI Tests --------------------
       - name: Install Cypress dependencies
         working-directory: ./ui-tests
         run: |
@@ -31,7 +28,6 @@ jobs:
         working-directory: ./ui-tests
         run: npx cypress run
 
-      # -------------------- Postman API Tests --------------------
       - name: Install Newman (Postman CLI)
         run: npm install -g newman
 
@@ -39,7 +35,7 @@ jobs:
         run: |
           node ./server.js
         shell: powershell
-        background: true  # Keep server running in background
+        background: true  
 
       - name: Wait for server to start
         run: Start-Sleep -Seconds 5
@@ -48,7 +44,6 @@ jobs:
       - name: Run Postman collection
         run: newman run ./api-tests/postman-collections.json
 
-      # -------------------- k6 Performance Tests --------------------
       - name: Install k6
         shell: powershell
         run: |
