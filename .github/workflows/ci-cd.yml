@@ -7,8 +7,7 @@ on:
 
 jobs:
   cypress:
-    runs-on: ubuntu-latest  
-
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -19,38 +18,27 @@ jobs:
         node-version: '24.11.1'
 
     - name: Install dependencies
-      working-directory: ./qa-candidate-assessment  # update if your Node.js project is in a subfolder
       run: |
         npm install
         npm install cypress
 
     - name: Run Cypress tests
-      working-directory: ./qa-candidate-assessment
       run: npx cypress run
 
   postman-api:
-    runs-on: ubuntu-latest  
-
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Install Postman CLI
-      run: |
-        curl -L https://dl.pstmn.io/download/latest/linux64 -o postman-cli.tar.gz
-        tar -xvzf postman-cli.tar.gz
-        sudo mv Postman /usr/local/bin/pm
-        sudo chmod +x /usr/local/bin/pm
-
-    - name: Verify Postman CLI installation
-      run: pm version
+    - name: Install Newman (Postman CLI)
+      run: npm install -g newman
 
     - name: Run Postman collection
-      run: pm run api-tests/your_postman_collection.json
+      run: newman run api-tests/your_postman_collection.json
 
   k6-performance:
-    runs-on: ubuntu-latest 
-
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
